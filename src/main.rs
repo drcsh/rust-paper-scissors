@@ -1,6 +1,9 @@
 use std::io;
 use rand::{thread_rng, Rng};
 
+
+
+
 fn main() {
     println!("What's your name?");
 
@@ -11,8 +14,8 @@ fn main() {
     let computer_moves = ["rock", "paper", "scissors"];
     let input_handler = io::stdin();
     let mut player_name = String::new();
-    let mut computer_move = String::new();
-    let mut result = String::new();
+    let mut player_score = 0;
+    let mut computer_score = 0;
 
     input_handler
         .read_line(&mut player_name)
@@ -23,25 +26,29 @@ fn main() {
     println!("Hello, {}!", player_name);
 
     loop {
-        println!("Let's play Rust Paper Scissors! Pick (r)ock, (p)aper, or (s)cissors or (q)uit");
-        let mut player_move = String::new();
-        input_handler.read_line(&mut player_move).expect("Failed to read line");
-        player_move = normalise_move(player_move);
+        println!();
+        println!("Let's play Rust Paper Scissors! Pick (r)ock, (p)aper, or (s)cissors or (q)uit:");
+        let mut player_input = String::new();
+        input_handler.read_line(&mut player_input).expect("Failed to read line");
+
+        let player_move = normalise_move(player_input);
 
         if !options.contains(&&*player_move) {
             println!("Invalid input '{}', please pick from:", player_move);
             for value in options.iter(){
                 println!("  {}", value);
             }
+            continue;
         }
 
         if player_move == "quit" {
             break;
         }
 
-        computer_move = pick_random(&computer_moves);
+        let computer_move = pick_random(&computer_moves);
 
-        result = String::from(win);
+        let mut result = String::from(win);
+
         if player_move == "rock" {
             if computer_move == "rock" {
                 result = String::from(draw);
@@ -63,6 +70,12 @@ fn main() {
             }
         }
 
+        if result == win {
+            player_score += 1;
+        } else if result == lose {
+            computer_score += 1;
+        }
+
         println!(
             "{} picked {}, computer picked {}, result: {}!",
             player_name,
@@ -72,7 +85,11 @@ fn main() {
         );
     }
 
-    println!("Thanks for playing!")
+    println!();
+    println!("Final Scores:");
+    println!("{}: {}", player_name, player_score);
+    println!("Computer: {}", computer_score);
+    println!("Thanks for playing!");
 
 }
 
@@ -83,7 +100,10 @@ fn normalise_input(input: String) -> String {
 }
 
 fn normalise_move(input: String) -> String {
-
+    /*
+     The player could enter the short or long forms of the inputs, and might accidentally
+     capitalise them. This function normalises this to standard values.
+     */
     let input_normalised = normalise_input(input);
 
     if input_normalised == "rock" || input_normalised == "r" {
