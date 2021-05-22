@@ -2,11 +2,7 @@ use std::io;
 use rand::{thread_rng, Rng};
 
 
-
-
 fn main() {
-    println!("What's your name?");
-
     let win = "win";
     let lose = "lose";
     let draw = "draw";
@@ -17,6 +13,7 @@ fn main() {
     let mut player_score = 0;
     let mut computer_score = 0;
 
+    println!("What's your name?");
     input_handler
         .read_line(&mut player_name)
         .expect("Failed to read line");
@@ -125,4 +122,3 @@ fn pick_random(options: &[&str]) -> String {
     let index = rng.gen_range(0..options.len());
     return String::from(options[index]);
 }
-
