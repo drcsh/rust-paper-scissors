@@ -1,14 +1,17 @@
 use std::io;
-use rand::{thread_rng, Rng};
+use rand::Rng;
 
 fn main() {
     let win = "win";
     let lose = "lose";
     let draw = "draw";
     let options = ["rock", "paper", "scissors", "r", "p", "s", "q", "quit"];
-    let computer_moves = ["rock", "paper", "scissors"];
+    
     let input_handler = io::stdin();
     let mut player_name = String::new();
+    let mut player_move: String;
+    let mut computer_move: String;
+    let mut result_text: &str;
     let mut player_score = 0;
     let mut computer_score = 0;
 
@@ -27,7 +30,7 @@ fn main() {
         let mut player_input = String::new();
         input_handler.read_line(&mut player_input).expect("Failed to read line");
 
-        let player_move = normalise_move(player_input);
+        player_move = normalise_move(&player_input);
 
         if !options.contains(&&*player_move) {
             println!("Invalid input '{}', please pick from:", player_move);
@@ -41,43 +44,24 @@ fn main() {
             break;
         }
 
-        let computer_move = pick_random(&computer_moves);
-
-        let mut result = String::from(win);
-
-        if player_move == "rock" {
-            if computer_move == "rock" {
-                result = String::from(draw);
-            } else if computer_move == "paper" {
-                result = String::from(lose);
-            }
-
-        } else if player_move == "paper"{
-            if computer_move == "paper" {
-                result = String::from(draw);
-            } else if computer_move == "scissors" {
-                result = String::from(lose);
-            }
-        } else if player_move == "scissors" {
-            if computer_move == "scissors" {
-                result = String::from(draw);
-            } else if computer_move == "rock" {
-                result = String::from(lose);
-            }
-        }
-
-        if result == win {
-            player_score += 1;
-        } else if result == lose {
-            computer_score += 1;
+        // Instead of picking a move for the computer and comparing the moves, 
+        // it's simpler to just decide the result and work out the move from the result
+        let result = rand::thread_rng().gen_range(1..4); 
+        if result == 1 {
+                player_score += 1;
+                result_text = win;
+                computer_move = computer_action(&player_move, false);
+        } else if result == 2 {
+                result_text = draw;
+                computer_move = player_move.clone();
+        } else {
+                computer_score += 1;
+                result_text = lose;
+                computer_move = computer_action(&player_move, true);
         }
 
         println!(
-            "{} picked {}, computer picked {}, result: {}!",
-            player_name,
-            player_move,
-            computer_move,
-            result
+            "{player_name} picked {player_move}, computer picked {computer_move}, result: {result_text}!",
         );
     }
 
@@ -90,19 +74,21 @@ fn main() {
 }
 
 
-fn normalise_input(input: String) -> String {
+fn normalise_input(input: &String) -> String {
     // converts input to lowercase and removes whitespace
     input.to_lowercase().trim().to_string()
 }
 
-fn normalise_move(input: String) -> String {
-    /*
+
+/**
      The player could enter the short or long forms of the inputs, and might accidentally
      capitalise them. This function normalises this to standard values.
-     */
+**/
+fn normalise_move(input: &String) -> String {
 
-    let input_normalised = normalise_input(input);
+    let input_normalised = normalise_input(&input);
 
+    // Note that .get returns an Option, so must be compared with Some()
     match input_normalised.get(0..1) {
         Some("r")=>return String::from("rock"),
         Some("p")=>return String::from("paper"),
@@ -112,9 +98,26 @@ fn normalise_move(input: String) -> String {
     }
 }
 
-fn pick_random(options: &[&str]) -> String {
-    // Returns a random member from an array of strs
-    let mut rng = thread_rng();
-    let index = rng.gen_range(0..options.len());
-    return String::from(options[index]);
+/**
+    Work out what move the computer makes based on the player move and whether the computer has
+    won or not.
+**/
+fn computer_action(player_move: &String, computer_wins: bool) -> String {
+
+    if computer_wins {
+        match player_move.as_str() {
+            "rock" => return String::from("paper"),
+            "paper" => return String::from("scissors"),
+            "scissors" => return String::from("rock"),
+            &_ => panic!("Invalid player move. This shouldn't happen!")
+        }
+
+    } else {
+        match player_move.as_str()  {
+            "rock" => return String::from("scissors"),
+            "paper" => return String::from("rock"),
+            "scissors" => return String::from("paper"),
+            &_ => panic!("Invalid player move. This shouldn't happen!")
+        }
+    }
 }
