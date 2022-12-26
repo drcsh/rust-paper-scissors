@@ -1,7 +1,6 @@
 use std::io;
 use rand::{thread_rng, Rng};
 
-
 fn main() {
     let win = "win";
     let lose = "lose";
@@ -101,19 +100,16 @@ fn normalise_move(input: String) -> String {
      The player could enter the short or long forms of the inputs, and might accidentally
      capitalise them. This function normalises this to standard values.
      */
+
     let input_normalised = normalise_input(input);
 
-    if input_normalised == "rock" || input_normalised == "r" {
-        return String::from("rock")
-    } else if input_normalised == "paper" || input_normalised == "p" {
-        return String::from("paper")
-    }  else if input_normalised == "scissors" || input_normalised == "s" {
-        return String::from("scissors")
-    } else if input_normalised == "quit" || input_normalised == "q" {
-        return String::from("quit")
+    match input_normalised.get(0..1) {
+        Some("r")=>return String::from("rock"),
+        Some("p")=>return String::from("paper"),
+        Some("s")=>return String::from("scissors"),
+        Some("q")=>return String::from("quit"),
+        _=> return input_normalised,
     }
-    return input_normalised
-
 }
 
 fn pick_random(options: &[&str]) -> String {
